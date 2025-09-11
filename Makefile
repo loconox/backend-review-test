@@ -75,11 +75,13 @@ clean: stop ## Clean the docker stack
 	@mkdir -p var vendor
 	@$(call log_success,Done)
 
-vendor: var/docker.build composer.lock ## Install composer dependencies
+vendor: var/.vendor.stamp ## Install composer dependencies
+
+var/.vendor.stamp: var/docker.build composer.lock
 	@$(call log,Installing vendor ...)
 	@mkdir -p vendor
 	@$(PHP_RUN) composer install
-	@$(call touch,vendor)
+	@$(call touch,var/.vendor.stamp)
 
 .PHONY: db
 db: var/docker.build
