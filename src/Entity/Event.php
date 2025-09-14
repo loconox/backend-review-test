@@ -84,35 +84,45 @@ class Event
         }
     }
 
-    public function id(): int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function type(): string
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function actor(): Actor
+    public function getActor(): Actor
     {
         return $this->actor;
     }
 
-    public function repo(): Repo
+    public function setActor(Actor $actor): void
+    {
+        $this->actor = $actor;
+    }
+
+    public function getRepo(): Repo
     {
         return $this->repo;
+    }
+
+    public function setRepo(Repo $repo): void
+    {
+        $this->repo = $repo;
     }
 
     /**
      * @return array<mixed>
      */
-    public function payload(): array
+    public function getPayload(): array
     {
         return $this->payload;
     }
 
-    public function createAt(): \DateTimeImmutable
+    public function getCreateAt(): \DateTimeImmutable
     {
         return $this->createAt;
     }
@@ -120,6 +130,11 @@ class Event
     public function getComment(): ?string
     {
         return $this->comment;
+    }
+
+    public function setComment(?string $comment): void
+    {
+        $this->comment = $comment;
     }
 
     public function getCount(): int

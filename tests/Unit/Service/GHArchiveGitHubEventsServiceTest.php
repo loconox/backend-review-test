@@ -59,8 +59,8 @@ class GHArchiveGitHubEventsServiceTest extends TestCase
         $this->assertCount(2, $events);
         $this->assertInstanceOf(Event::class, $events[0]);
         $this->assertInstanceOf(Event::class, $events[1]);
-        $this->assertEquals(1, $events[0]->id());
-        $this->assertEquals(2, $events[1]->id());
+        $this->assertEquals(1, $events[0]->getId());
+        $this->assertEquals(2, $events[1]->getId());
     }
 
     public function testGetEventsWithNullDateUsesYesterday(): void
@@ -185,8 +185,8 @@ class GHArchiveGitHubEventsServiceTest extends TestCase
 
         // Assert
         $this->assertCount(2, $events); // Seuls les événements valides
-        $this->assertEquals(1, $events[0]->id());
-        $this->assertEquals(3, $events[1]->id());
+        $this->assertEquals(1, $events[0]->getId());
+        $this->assertEquals(3, $events[1]->getId());
     }
 
     public function testStreamGzipJsonLinesHandlesEmptyChunks(): void

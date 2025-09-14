@@ -9,12 +9,9 @@ interface WriteEventRepository
 {
     public function update(EventInput $authorInput, int $id): void;
 
-    public function create(Event $event): void;
-
-    /**
-     * @param Event[] $events
-     */
-    public function createBatch(array $events): void;
+    public function create(Event $event, bool $flush = true): void;
 
     public function deleteAll(): void;
+
+    public function flush(): void;
 }

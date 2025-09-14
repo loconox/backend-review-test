@@ -83,9 +83,12 @@ class ImportGitHubEventsServiceTest extends TestCase
             })());
 
         $this->writeEventRepository
-            ->expects($this->once())
-            ->method('createBatch')
-            ->with($events);
+            ->expects($this->exactly(2))
+            ->method('create');
+
+        $this->writeEventRepository
+            ->expects($this->atLeastOnce())
+            ->method('flush');
 
         // Act
         $generator = $this->importService->import($date);
@@ -115,16 +118,12 @@ class ImportGitHubEventsServiceTest extends TestCase
 
         // On s'attend à 2 appels : un pour 1000 événements, un autre pour 1000, et le dernier batch reste dans le buffer
         $this->writeEventRepository
+            ->expects($this->exactly(2500))
+            ->method('create');
+
+        $this->writeEventRepository
             ->expects($this->exactly(3))
-            ->method('createBatch')
-            ->withConsecutive(
-                [$this->callback(function ($batch) {
-                    return ImportGitHubEventsService::DEFAULT_BATCH_SIZE === count($batch);
-                })],
-                [$this->callback(function ($batch) {
-                    return ImportGitHubEventsService::DEFAULT_BATCH_SIZE === count($batch);
-                })],
-            );
+            ->method('flush');
 
         // Act
         $generator = $this->importService->import($date);
@@ -149,7 +148,7 @@ class ImportGitHubEventsServiceTest extends TestCase
 
         $this->writeEventRepository
             ->expects($this->never())
-            ->method('createBatch');
+            ->method('create');
 
         // Act
         $generator = $this->importService->import($date);

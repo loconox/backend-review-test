@@ -42,11 +42,11 @@ class AbstractGitHubEventsServiceTest extends TestCase
         $event = $method->invoke($service, $data);
 
         $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals(12345, $event->id());
-        $this->assertEquals(EventType::COMMIT, $event->type());
-        $this->assertInstanceOf(Actor::class, $event->actor());
-        $this->assertInstanceOf(Repo::class, $event->repo());
-        $this->assertEquals(new \DateTimeImmutable('2025-09-14T12:34:56Z'), $event->createAt());
+        $this->assertEquals(12345, $event->getId());
+        $this->assertEquals(EventType::COMMIT, $event->getType());
+        $this->assertInstanceOf(Actor::class, $event->getActor());
+        $this->assertInstanceOf(Repo::class, $event->getRepo());
+        $this->assertEquals(new \DateTimeImmutable('2025-09-14T12:34:56Z'), $event->getCreateAt());
         $this->assertNull($event->getComment());
     }
 
@@ -81,11 +81,11 @@ class AbstractGitHubEventsServiceTest extends TestCase
         $event = $method->invoke($service, $data);
 
         $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals(67890, $event->id());
-        $this->assertEquals(EventType::PULL_REQUEST, $event->type());
-        $this->assertInstanceOf(Actor::class, $event->actor());
-        $this->assertInstanceOf(Repo::class, $event->repo());
-        $this->assertEquals(new \DateTimeImmutable('2025-09-14T13:00:00Z'), $event->createAt());
+        $this->assertEquals(67890, $event->getId());
+        $this->assertEquals(EventType::PULL_REQUEST, $event->getType());
+        $this->assertInstanceOf(Actor::class, $event->getActor());
+        $this->assertInstanceOf(Repo::class, $event->getRepo());
+        $this->assertEquals(new \DateTimeImmutable('2025-09-14T13:00:00Z'), $event->getCreateAt());
     }
 
     /**
@@ -119,8 +119,8 @@ class AbstractGitHubEventsServiceTest extends TestCase
         $event = $method->invoke($service, $data);
 
         $this->assertInstanceOf(Event::class, $event);
-        $this->assertEquals(11223, $event->id());
-        $this->assertEquals(EventType::COMMENT, $event->type());
+        $this->assertEquals(11223, $event->getId());
+        $this->assertEquals(EventType::COMMENT, $event->getType());
         $this->assertEquals('This is a test comment', $event->getComment());
     }
 

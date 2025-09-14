@@ -30,23 +30,18 @@ class ImportGitHubEventsService
      */
     public function import(?\DateTimeImmutable $date = null): \Generator
     {
-        $batch = [];
         $count = 0;
 
         foreach ($this->service->getEvents($date) as $event) {
-            $batch[] = $event;
             ++$count;
+            $this->writeEventRepository->create($event, false);
             if ($count >= self::DEFAULT_BATCH_SIZE) {
-                $this->writeEventRepository->createBatch($batch);
-                yield from $batch;
-                $batch = [];
+                $this->writeEventRepository->flush();
                 $count = 0;
             }
+            yield $event;
         }
-        if ($count > 0) {
-            $this->writeEventRepository->createBatch($batch);
-            yield from $batch;
-        }
+        $this->writeEventRepository->flush();
     }
 
     public function deleteAll(): void
