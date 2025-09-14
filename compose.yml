@@ -11,6 +11,8 @@ services:
       COMPOSER_HOME: /tmp/composer
     depends_on:
       - database
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   database:
     image: postgres:14-alpine
@@ -30,9 +32,9 @@ services:
 #     # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
 #     # - ./docker/db/data:/var/lib/postgresql/data:rw
 
-  adminer:
-    image: adminer:4.7
-    links:
-      - "database:db"
-    ports:
-      - "8888:8080"
+#  adminer:
+#    image: adminer:4.7
+#    links:
+#      - "database:db"
+#    ports:
+#      - "8888:8080"

@@ -34,6 +34,18 @@ RUN apk add --no-cache bash && \
     curl -1sLf 'https://dl.cloudsmith.io/public/symfony/stable/setup.alpine.sh' | bash && \
     apk add symfony-cli
 
+RUN apk add --update linux-headers \
+    && apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+RUN <<EOL
+echo "xdebug.mode=debug
+xdebug.start_with_request=yes
+xdebug.client_host=host.docker.internal
+xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+EOL
+
 USER docker:docker
 
 EXPOSE 8000

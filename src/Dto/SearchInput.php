@@ -2,15 +2,13 @@
 
 namespace App\Dto;
 
+use Symfony\Component\Serializer\Attribute\Context;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+
 class SearchInput
 {
-    /**
-     * @var \DateTimeImmutable
-     */
-    public $date;
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y-m-d'])]
+    public \DateTimeImmutable $date;
 
-    /**
-     * @var string
-     */
-    public $keyword;
+    public string $keyword;
 }
