@@ -60,10 +60,6 @@ class GHArchiveGitHubEventsService extends AbstractGitHubEventsService
 
             yield $line;
         }
-        if (!empty($buffer)) {
-            yield $buffer;
-            $buffer = '';
-        }
     }
 
     /**
@@ -93,5 +89,8 @@ class GHArchiveGitHubEventsService extends AbstractGitHubEventsService
         $buffer .= $decompressed;
 
         yield from $this->readLines($buffer);
+        if (!empty($buffer)) {
+            yield $buffer;
+        }
     }
 }

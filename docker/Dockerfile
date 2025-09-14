@@ -46,6 +46,10 @@ xdebug.client_host=host.docker.internal
 xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 EOL
 
+RUN <<EOL
+echo "memory_limit=256M" >> /usr/local/etc/php/php.ini
+EOL
+
 USER docker:docker
 
 EXPOSE 8000

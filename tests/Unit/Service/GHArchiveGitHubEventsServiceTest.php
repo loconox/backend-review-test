@@ -270,6 +270,7 @@ class GHArchiveGitHubEventsServiceTest extends TestCase
      */
     private function setupSuccessfulHttpCall(string $expectedUrl, string $gzipData, bool $setupStream = true): void
     {
+        $eofCount = 0;
         $this->requestFactory
             ->expects($this->once())
             ->method('createRequest')
@@ -296,13 +297,21 @@ class GHArchiveGitHubEventsServiceTest extends TestCase
             $this->stream
                 ->expects($this->atLeastOnce())
                 ->method('eof')
-                ->willReturnOnConsecutiveCalls(false, true);
+                ->willReturnCallback(function () use ($gzipData, &$eofCount) {
+                    // @phpstan-ignore greater.alwaysFalse
+                    return $eofCount * 8192 > strlen($gzipData);
+                });
 
             $this->stream
-                ->expects($this->once())
+                ->expects($this->atLeastOnce())
                 ->method('read')
                 ->with(8192)
-                ->willReturn($gzipData);
+                ->willReturnCallback(function ($size) use ($gzipData, &$eofCount) {
+                    $ret = substr($gzipData, $eofCount * $size, $size);
+                    ++$eofCount;
+
+                    return $ret;
+                });
         }
     }
 
@@ -368,13 +377,76 @@ class GHArchiveGitHubEventsServiceTest extends TestCase
         ];
     }
 
-    public function testReadLines(): void
+    /**
+     * @dataProvider readLinesProvider
+     *
+     * @param string[] $expected
+     *
+     * @throws \ReflectionException
+     */
+    public function testReadLines(string $buffer, array $expected, string $remaining): void
     {
-        $buffer = "line1\nline2\nline3";
         $reflection = new \ReflectionClass(GHArchiveGitHubEventsService::class);
         $method = $reflection->getMethod('readLines');
         $lines = iterator_to_array($method->invokeArgs($this->service, [&$buffer]));
-        $this->assertEquals(['line1', 'line2', 'line3'], $lines);
-        $this->assertEquals('', $buffer);
+        $this->assertEquals($expected, $lines);
+        $this->assertEquals($remaining, $buffer);
+    }
+
+    /**
+     * @return array<array{string, array<int, string>, string}>
+     */
+    public function readLinesProvider(): array
+    {
+        return [
+            ["line1\nline2\nline3", ['line1', 'line2'], 'line3'],
+            ["line1\nline2\nline3\n", ['line1', 'line2', 'line3'], ''],
+        ];
+    }
+
+    public function testGetEventsWithBigEvent(): void
+    {
+        // Arrange
+        $date = new \DateTimeImmutable('2023-10-15 14:00:00');
+        $expectedUrl = 'https://data.gharchive.org/2023-10-15-14.json.gz';
+        $gzipData = $this->createGzipJsonData(events: [
+            [
+                'id' => 42,
+                'type' => 'PushEvent',
+                'repo' => [
+                    'id' => 1000,
+                    'name' => 'repo',
+                    'url' => 'https://github.com/repo',
+                ],
+                'actor' => [
+                    'id' => 2000,
+                    'login' => 'actor}',
+                    'url' => 'https://github.com/actor',
+                    'avatar_url' => 'https://avatar.png',
+                ],
+                'payload' => [
+                    'size' => 1,
+                    'comment' => [
+                        'body' => $this->randomString(11000),
+                    ],
+                ],
+                'created_at' => '2023-10-15T14:30:00Z',
+            ],
+            $this->createValidEventData(1, 'PushEvent'),
+        ]);
+
+        $this->setupSuccessfulHttpCall($expectedUrl, $gzipData);
+
+        // Act
+        $generator = $this->service->getEvents($date);
+        $events = iterator_to_array($generator);
+
+        // Assert
+        $this->assertCount(2, $events);
+    }
+
+    protected function randomString(int $length = 10): string
+    {
+        return substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', (int) ceil($length / strlen($x)))), 1, $length);
     }
 }
