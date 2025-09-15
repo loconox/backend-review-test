@@ -2,21 +2,22 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         types:
-            EventType: App\Entity\EventType
+            EventType: App\Event\Domain\Entity\EventType
 
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '13'
     orm:
+        enable_lazy_ghost_objects: true
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
         mappings:
-            App:
-                is_bundle: false
-                dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
-                alias: App
+            App\Event\Domain\Entity:
+              type: xml
+              is_bundle: false
+              dir: '%kernel.project_dir%/src/Event/Infrastructure/Doctrine/Mapping'
+              prefix: 'App\Event\Domain\Entity'
 
 when@test:
     doctrine:

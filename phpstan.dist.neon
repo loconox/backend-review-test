@@ -6,3 +6,6 @@ parameters:
         - public/
         - src/
         - tests/
+
+includes:
+	- src/Common/Infrastructure/PhpStan/rules.neon
