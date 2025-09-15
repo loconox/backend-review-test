@@ -32,7 +32,7 @@ class SearchControllerTest extends WebTestCase
 
     public function testSearchCommits(): void
     {
-        $date = new \DateTimeImmutable();
+        $date = new \DateTimeImmutable('2023-10-15 14:00:00', new \DateTimeZone('UTC'));
         $keyword = 'Test';
 
         $this->client->request(
@@ -44,8 +44,8 @@ class SearchControllerTest extends WebTestCase
               {
                 "meta": {
                   "totalEvents": 1,
-                  "totalCommits": 0,
                   "totalPullRequests": 0,
+                  "totalCommits": 0,
                   "totalComments": 1
                 },
                 "data":{
@@ -66,12 +66,12 @@ class SearchControllerTest extends WebTestCase
                     {"COM":0,"PR":0,"MSG":0},
                     {"COM":0,"PR":0,"MSG":0},
                     {"COM":0,"PR":0,"MSG":0},
+                    {"COM":0,"PR":0,"MSG":0},
+                    {"COM":0,"PR":0,"MSG":0},
+                    {"COM":0,"PR":0,"MSG":0},
+                    {"COM":0,"PR":0,"MSG":0},
+                    {"COM":0,"PR":0,"MSG":0},
                     {"COM":0,"PR":0,"MSG":1},
-                    {"COM":0,"PR":0,"MSG":0},
-                    {"COM":0,"PR":0,"MSG":0},
-                    {"COM":0,"PR":0,"MSG":0},
-                    {"COM":0,"PR":0,"MSG":0},
-                    {"COM":0,"PR":0,"MSG":0},
                     {"COM":0,"PR":0,"MSG":0},
                     {"COM":0,"PR":0,"MSG":0},
                     {"COM":0,"PR":0,"MSG":0},

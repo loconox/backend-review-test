@@ -17,6 +17,7 @@ class EventFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $date = new \DateTimeImmutable('2023-10-15 14:00:00', new \DateTimeZone('UTC'));
         $event = new Event(
             self::EVENT_1_ID,
             EventType::COMMENT,
@@ -32,7 +33,7 @@ class EventFixtures extends Fixture
                 'https://api.github.com/repos/yousign/backend-test',
             ),
             [],
-            new \DateTimeImmutable(),
+            $date,
             'Test comment initiate by fixture ',
         );
 
