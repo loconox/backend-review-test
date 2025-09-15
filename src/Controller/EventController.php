@@ -21,7 +21,7 @@ class EventController
     public function __construct(
         WriteEventRepository $writeEventRepository,
         ReadEventRepository $readEventRepository,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
     ) {
         $this->writeEventRepository = $writeEventRepository;
         $this->readEventRepository = $readEventRepository;
@@ -40,14 +40,14 @@ class EventController
         if (\count($errors) > 0) {
             return new JsonResponse(
                 ['message' => $errors->get(0)->getMessage()],
-                Response::HTTP_BAD_REQUEST
+                Response::HTTP_BAD_REQUEST,
             );
         }
 
-        if($this->readEventRepository->exist($id) === false) {
+        if (false === $this->readEventRepository->exist($id)) {
             return new JsonResponse(
                 ['message' => sprintf('Event identified by %d not found !', $id)],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_NOT_FOUND,
             );
         }
 

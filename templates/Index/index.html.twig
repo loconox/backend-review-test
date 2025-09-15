@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recherche GitHub{% endblock %}
+
+{% block body %}
+    <div class="container my-4">
+        <h1 class="mb-4">Recherche d'évènements</h1>
+
+        <!-- Formulaire de recherche -->
+        <form id="search-form" class="d-flex align-items-center mb-4">
+            <input type="date" id="date-input" name="date" class="form-control me-2" required>
+            <input type="text" id="keyword-input" name="keyword" class="form-control me-2" placeholder="Mot-clé" required>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Rechercher
+            </button>
+        </form>
+
+        <!-- Résumé -->
+        <div id="summary" class="mb-4 d-none">
+            <h3><span id="total-events">0</span> évènements trouvés pour le
+                <span id="selected-date"></span> et le mot-clé "<span id="selected-keyword"></span>".
+            </h3>
+        </div>
+
+        <!-- Stats principales -->
+        <div class="row text-center mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>NOMBRE DE COMMITS</h5>
+                        <h2 id="commits-count">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>NOMBRE DE PULL-REQUEST</h5>
+                        <h2 id="prs-count">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5>NOMBRE DE COMMENTAIRES</h5>
+                        <h2 id="comments-count">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Répartition horaire</h5>
+                <canvas id="events-chart" height="120"></canvas>
+            </div>
+        </div>
+
+        <!-- Liste d'évènements -->
+        <div class="card">
+            <div class="card-body">
+                <h5>Sélection d'évènements</h5>
+                <ul id="events-list" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Bootstrap icons (optionnel pour l'icône recherche) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("search-form");
+            const chartCtx = document.getElementById("events-chart").getContext("2d");
+            let eventsChart = null;
+
+            form.addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const date = document.getElementById("date-input").value;
+                const keyword = document.getElementById("keyword-input").value;
+
+                const response = await fetch(`/api/search?date=${date}&keyword=${encodeURIComponent(keyword)}`);
+                const data = await response.json();
+
+                // Affichage résumé
+                document.getElementById("summary").classList.remove("d-none");
+                document.getElementById("total-events").innerText = data.meta.totalEvents;
+                document.getElementById("selected-date").innerText = date;
+                document.getElementById("selected-keyword").innerText = keyword;
+
+                // Stats principales
+                document.getElementById("commits-count").innerText =  data.meta.totalCommits;
+                document.getElementById("prs-count").innerText =  data.meta.totalPullRequests;
+                document.getElementById("comments-count").innerText =  data.meta.totalComments;
+
+                // Graphique
+                const labels = [...data.data.stats.keys()];
+                const commits = data.data.stats.map(item => item.COM);
+                const prs = data.data.stats.map(item => item.PR);
+                const comments = data.data.stats.map(item => item.MSG);
+
+                if (eventsChart) eventsChart.destroy();
+
+                eventsChart = new Chart(chartCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: "Commits", data: commits, borderColor: "blue", fill: false },
+                            { label: "Pull Requests", data: prs, borderColor: "green", fill: false },
+                            { label: "Commentaires", data: comments, borderColor: "orange", fill: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        tension: 0.3
+                    }
+                });
+
+                // Liste d’évènements
+                const list = document.getElementById("events-list");
+                list.innerHTML = "";
+                data.data.events.forEach(ev => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+                    li.innerHTML = `<strong>Commit <a href="#">${ev.commit}</a></strong> sur <a href="#">${ev.repo}</a> - ${ev.message}`;
+                    list.appendChild(li);
+                });
+            });
+        });
+    </script>
+{% endblock %}

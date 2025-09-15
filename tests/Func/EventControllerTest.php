@@ -3,8 +3,8 @@
 namespace App\Tests\Func;
 
 use App\DataFixtures\EventFixtures;
-use App\Entity\Event;
 use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
@@ -12,11 +12,11 @@ use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 class EventControllerTest extends WebTestCase
 {
     protected AbstractDatabaseTool $databaseTool;
-    private static $client;
+    private KernelBrowser $client;
 
     protected function setUp(): void
     {
-        static::$client = static::createClient();
+        $this->client = static::createClient();
 
         $entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
         $metaData = $entityManager->getMetadataFactory()->getAllMetadata();
@@ -26,41 +26,36 @@ class EventControllerTest extends WebTestCase
         $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
 
         $this->databaseTool->loadFixtures(
-            [EventFixtures::class]
+            [EventFixtures::class],
         );
     }
 
-    public function testUpdateShouldReturnEmptyResponse()
+    public function testUpdateShouldReturnEmptyResponse(): void
     {
-        $client = static::$client;
-
-        $client->request(
+        $this->client->request(
             'PUT',
             sprintf('/api/event/%d/update', EventFixtures::EVENT_1_ID),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['comment' => 'It‘s a test comment !!!!!!!!!!!!!!!!!!!!!!!!!!!'])
+            json_encode(['comment' => 'It‘s a test comment !!!!!!!!!!!!!!!!!!!!!!!!!!!']),
         );
 
-        $this->assertResponseStatusCodeSame(204);
+        self::assertResponseStatusCodeSame(204);
     }
 
-
-    public function testUpdateShouldReturnHttpNotFoundResponse()
+    public function testUpdateShouldReturnHttpNotFoundResponse(): void
     {
-        $client = static::$client;
-
-        $client->request(
+        $this->client->request(
             'PUT',
             sprintf('/api/event/%d/update', 7897897897),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['comment' => 'It‘s a test comment !!!!!!!!!!!!!!!!!!!!!!!!!!!'])
+            json_encode(['comment' => 'It‘s a test comment !!!!!!!!!!!!!!!!!!!!!!!!!!!']),
         );
 
-        $this->assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(404);
 
         $expectedJson = <<<JSON
               {
@@ -68,30 +63,31 @@ class EventControllerTest extends WebTestCase
               }
             JSON;
 
-        self::assertJsonStringEqualsJsonString($expectedJson, $client->getResponse()->getContent());
+        self::assertJsonStringEqualsJsonString($expectedJson, $this->client->getResponse()->getContent());
     }
 
     /**
      * @dataProvider providePayloadViolations
      */
-    public function testUpdateShouldReturnBadRequest(string $payload, string $expectedResponse)
+    public function testUpdateShouldReturnBadRequest(string $payload, string $expectedResponse): void
     {
-        $client = static::$client;
-
-        $client->request(
+        $this->client->request(
             'PUT',
             sprintf('/api/event/%d/update', EventFixtures::EVENT_1_ID),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            $payload
+            $payload,
         );
 
         self::assertResponseStatusCodeSame(400);
-        self::assertJsonStringEqualsJsonString($expectedResponse, $client->getResponse()->getContent());
+        self::assertJsonStringEqualsJsonString($expectedResponse, $this->client->getResponse()->getContent());
 
     }
 
+    /**
+     * @return iterable<string, array{0: string, 1: string}>
+     */
     public function providePayloadViolations(): iterable
     {
         yield 'comment too short' => [
@@ -105,7 +101,7 @@ class EventControllerTest extends WebTestCase
                 {
                     "message": "This value is too short. It should have 20 characters or more."
                 }
-            JSON
+            JSON,
         ];
     }
 }

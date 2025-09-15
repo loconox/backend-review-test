@@ -15,8 +15,9 @@ class EventFixtures extends Fixture
     public const ACTOR_1_ID = 1;
     public const REPO_1_ID = 1;
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
+        $date = new \DateTimeImmutable('2023-10-15 14:00:00', new \DateTimeZone('UTC'));
         $event = new Event(
             self::EVENT_1_ID,
             EventType::COMMENT,
@@ -24,16 +25,16 @@ class EventFixtures extends Fixture
                 self::ACTOR_1_ID,
                 'jdoe',
                 'https://api.github.com/users/jdoe',
-                'https://avatars.githubusercontent.com/u/1?'
+                'https://avatars.githubusercontent.com/u/1?',
             ),
             new Repo(
                 self::REPO_1_ID,
                 'yousign/test',
-                'https://api.github.com/repos/yousign/backend-test'
+                'https://api.github.com/repos/yousign/backend-test',
             ),
             [],
-            new \DateTimeImmutable(),
-            'Test comment initiate by fixture '
+            $date,
+            'Test comment initiate by fixture ',
         );
 
         $manager->persist($event);
