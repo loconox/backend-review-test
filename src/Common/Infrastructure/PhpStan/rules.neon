@@ -1,0 +1,3 @@
+rules:
+    - App\Common\Infrastructure\PhpStan\Rules\DependenciesRule
+    - App\Common\Infrastructure\PhpStan\Rules\NamespaceRule

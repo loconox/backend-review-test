@@ -1,0 +1,32 @@
+parameters:
+
+services:
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+  App\Event\:
+    resource: '../../../'
+    exclude:
+      - '../../../Domain/Entity/'
+
+  # add more service definitions when explicit configuration is needed
+  # please note that last definitions always *replace* previous ones
+  App\Event\Infrastructure\Symfony\Controller\:
+    resource: '../Controller/'
+    tags: [ 'controller.service_arguments' ]
+
+  App\Event\Domain\Repository\EventRepositoryInterface:
+    alias: App\Event\Infrastructure\Doctrine\Repository\EventRepository
+
+  App\Event\Domain\Entity\EventType: ~
+
+  App\Event\Application\Repository\WriteEventRepository:
+    alias: App\Event\Infrastructure\Doctrine\Repository\DbalWriteEventRepository
+
+  App\Event\Application\Repository\ReadEventRepository:
+    alias: App\Event\Infrastructure\Doctrine\Repository\DbalReadEventRepository
+
+  App\Event\Application\Service\GitHubEventsServiceInterface:
+    alias: App\Event\Infrastructure\Symfony\Service\GHArchiveGitHubEventsService
