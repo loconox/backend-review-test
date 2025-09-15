@@ -170,10 +170,10 @@ class AbstractGitHubEventsServiceTest extends TestCase
         $actor = $method->invoke($service, $data);
 
         $this->assertInstanceOf(Actor::class, $actor);
-        $this->assertEquals(1, $actor->id());
-        $this->assertEquals('testuser', $actor->login());
-        $this->assertEquals('http://example.com/user', $actor->url());
-        $this->assertEquals('http://example.com/avatar', $actor->avatarUrl());
+        $this->assertEquals(1, $actor->getId());
+        $this->assertEquals('testuser', $actor->getLogin());
+        $this->assertEquals('http://example.com/user', $actor->getUrl());
+        $this->assertEquals('http://example.com/avatar', $actor->getAvatarUrl());
     }
 
     /**
@@ -196,8 +196,8 @@ class AbstractGitHubEventsServiceTest extends TestCase
         $repo = $method->invoke($service, $data);
 
         $this->assertInstanceOf(Repo::class, $repo);
-        $this->assertEquals(101, $repo->id());
-        $this->assertEquals('sample/repo', $repo->name());
-        $this->assertEquals('http://example.com/repo', $repo->url());
+        $this->assertEquals(101, $repo->getId());
+        $this->assertEquals('sample/repo', $repo->getName());
+        $this->assertEquals('http://example.com/repo', $repo->getUrl());
     }
 }

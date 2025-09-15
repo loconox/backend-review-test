@@ -76,12 +76,12 @@ class DbalWriteEventRepository implements WriteEventRepository
 
     protected function findActor(Actor $actor): ?Actor
     {
-        return $this->actorRepository->find($actor->id());
+        return $this->actorRepository->find($actor->getId());
     }
 
     protected function findRepo(Repo $repo): ?Repo
     {
-        return $this->repoRepository->find($repo->id());
+        return $this->repoRepository->find($repo->getId());
     }
 
     protected function findEvent(Event $event): ?Event
